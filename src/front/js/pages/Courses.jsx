@@ -1,31 +1,34 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { SearchBar } from "../tools/searchBar";
-import { Categories } from "../component/Categories.jsx";
+import { CategoriesGrid } from "../component/CategoriesGrid.jsx";
 
 import { Context } from "../store/appContext";
 
-export const Courses = (props) => {
+export const Courses = () => {
   const { store, actions } = useContext(Context);
-  let type = props.type;
+
+  useEffect(() => {
+    actions.cleanInput()
+  }, [])
+
 
   return (
     <>
-      <div className="container border rounded mt-5 h-100 w-100 d-flex justify-content-end flex-column p-4">
+      <div className="container border rounded mt-5 w-100 d-flex justify-content-end flex-column p-4 bg-light">
         <div className="d-flex justify-content-between w-100">
-          <h3>Cursos</h3>
+        <h1 className="display-5 mx-5 my-4">Cursos</h1>
           <SearchBar />
         </div>
 
         {/* Lorman - Categorias */}
         <div>
-          <Categories type="curso" />
-          <Categories type="curso" />
+          <CategoriesGrid type="curso" />
         </div>
 
         <div className="d-flex justify-content-end w-100">
           <Link to="/">
-            <button className="btn btn-primary">Back home</button>
+            <button className="btn btn-secondary">Volver a Inicio</button>
           </Link>
         </div>
       </div>

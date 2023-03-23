@@ -1,36 +1,110 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Context } from "../store/appContext";
 import { Card } from "./Card.jsx";
 
 export const Categories = (props) => {
   let type = props.type;
-
+  const [posts, setPosts] = useState([]);
   const { store, actions } = useContext(Context);
   const { postcourses, postevents } = store;
 
+  const checkFavorites = () => {
+    let favoritesPosts = [];
 
-  let posts = [];
-  useEffect(() => {}, [postcourses]);
+    for (let post of postcourses) {
+      if (store.userData?.favorites) {
+        for (let favorite_id of store?.userData?.favorites) {
+          if (post.id == favorite_id) {
+            favoritesPosts.push(post);
+          }
+        }
+      }
+    }
+
+    for (let post of postevents) {
+      if (store.userData?.favorites) {
+        for (let favorite_id of store?.userData?.favorites) {
+          if (post.id == favorite_id) {
+            favoritesPosts.push(post);
+          }
+        }
+      }
+    }
+
+    setPosts(favoritesPosts);
+  };
+
+  const checkCreated = () => {
+    let createdPosts = [];
+
+    for (let post of postcourses) {
+      if (post.author == store.tempUserData.id) {
+        createdPosts.push(post);
+      }
+    }
+    for (let post of postevents) {
+      if (post.author == store.tempUserData.id) {
+        createdPosts.push(post);
+      }
+    }
 
 
-  if (props.type == "curso") {
-    posts = postcourses;
-  } else {
-    posts = postevents;
-  }
+    setPosts(createdPosts);
+  };
+
+  useEffect(() => {
+    if (props.created == "true") {
+      checkCreated();
+    } else if (props.favorite == "true") {
+      checkFavorites();
+    } else if (props.type == "curso") {
+      setPosts(postcourses);
+    } else {
+      setPosts(postevents);
+    }
+
+    actions.coursesandeventsbycategory();
+  }, [postcourses, store.userData.favorites, store.tempUserData.posts]);
 
   return (
     <>
       <div className="home">
         <div className="container container-categories">
-          <h1>Categoria</h1>
           <div className="home-card-list">
+            {store.searchCategory !== ""
+              ? posts
+                  .filter((data) => data.categories == store?.searchCategory)
+                  .map((data) => {
+                    if (
+                      data?.name
+                        .toLowerCase()
+                        .includes(store.searchValue?.toLowerCase())
+                    ) {
+                      return (
+                        <Card key={data.id} data={data} type={type} />
+                      );
+                    }
+                  })
+              : posts.map((data) => {
 
-            {posts?.map((data) => (
-              <Card key={data.id} data={data} type={props.type} />
-            ))}
+                  let type = "";
+                  if (data.event == true) {
+                    type = "evento";
+                  } else {
+                    type = "curso";
 
+                  }
+                  if (
+                    data?.name
+                      .toLowerCase()
+                      .includes(store.searchValue.toLowerCase())
+                  ) {
+                    return <Card key={data.id} data={data} type={type} />;
+                  }
+                })}
+
+                {posts.length == 0 ? <h3 className="fw-light">No hay nada aqui!</h3 >: null}
           </div>
         </div>
       </div>

@@ -13,30 +13,40 @@ export const EventDetail = () => {
 
   const { postevents } = store;
   const event = postevents.find((post) => post.id == params.id);
+  const infoAsked = store.userData.askedInfo?.find((item) => event?.id == item);
+  const favorited = store.userData.favorites?.find((item) => event?.id == item);
 
   return (
     <>
-      <div className="container border rounded mt-5 h-100 w-100 d-flex justify-content-between p-4">
-        <div className="d-flex flex-column left-col">
+      <div className="container border rounded mt-5 h-100 w-100 d-flex justify-content-between bg-light p-4">
+        <div className="d-flex flex-column left-col w-100">
           <div className="container">
-            <h2 className="display-5 text-center border rounded p-4">
-              {event?.name}
-            </h2>
-            <img
-              className="w-100 border rounded mt-2"
-              src="https://picsum.photos/700/250"
-              alt="..."
-            />
+            <div className="text-center border rounded p-4 bg-white">
+              <h2 className="display-5 ">{event?.name}</h2>
+              <h1 className="small">
+                Creado por:
+                <Link to={`/profile/${event?.author}`}>
+                  <div className="d-inline mx-1">{event?.author_name}</div>
+                </Link>
+              </h1>
+            </div>
+            <div className="img">
+              <img
+                className=" border rounded mt-2 bg-white"
+                src={event?.img_url}
+                alt="..."
+              />
+            </div>
           </div>
-          <div className="container mt-4">
-            <div className="border rounded p-4">
+          <div className="container mt-4 ">
+            <div className="detail border rounded p-5 bg-white no-overflow">
               <p>{event?.detail}</p>
             </div>
           </div>
         </div>
 
         <div className="right-col">
-          <div className="h-100 border rounded p-4 d-flex flex-column justify-content-between">
+          <div className="h-100 border rounded p-4 d-flex flex-column justify-content-between bg-white">
             <ul className="list-group">
               {event?.categories ? (
                 <li className="list-group-item">
@@ -82,26 +92,48 @@ export const EventDetail = () => {
                 </li>
               ) : null}
             </ul>
-            <Link to="/">
-              <button className="btn btn-primary w-100">
-                Solicitar Informacion
-              </button>
-            </Link>
-            <button
-              type="button"
-              className="btn w-100"
-              onClick={() => {
-                {
-                  actions.addCard(event.id, 1);
-                }
-              }}
-            >
-              <i className="fas fa-heart"></i>
-            </button>
+
+            <div className="buttons d-flex justify-content-between">
+              {store.user_id == "" ? null : infoAsked ? (
+                <button type="button" className="btn btn-success w-50">
+                  Ya solicitaste información
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    actions.askInformation(
+                      store.user_id,
+                      event.author,
+                      event.id
+                    );
+                  }}
+                  className="btn btn-primary w-50"
+                >
+                  Solicitar Informacion
+                </button>
+              )}
+
+              {store.user_id == "" ? null : (
+                <button
+                  type="button"
+                  className={
+                    "btn btn-secondary w-25 " +
+                    (favorited ? "btn-warning" : null)
+                  }
+                  onClick={() => {
+                    {
+                      actions.addCard(event.id, store.user_id);
+                    }
+                  }}
+                >
+                  <i class="fa-solid fa-bookmark"></i>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
     </>
   );
 };
-
